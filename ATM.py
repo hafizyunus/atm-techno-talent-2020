@@ -10,6 +10,8 @@ class atm:
 
         master.title('ATM Machine')
 
+        master.iconbitmap(r'D:\My Stuff\VSCode\Python\atm-techno-talent-2019\money.ico')
+
         # ***** Frames *****
 
         self.mainFrame = Frame(master, width=500, height=500)
@@ -133,7 +135,7 @@ class atm:
                     self.comment2.grid(row=3, column=1, pady=5)
                 else:
                     self.comment2.grid_remove()
-                    self.comment2 = Label(self.mainFrame, justify=CENTER, text=text='Enter a smaller amount', font='Helvetica 15', foreground='green')
+                    self.comment2 = Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', font='Helvetica 15', foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
             else:
                 self.comment2.grid_remove()
