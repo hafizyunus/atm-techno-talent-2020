@@ -10,7 +10,7 @@ class atm:
 
         master.title('ATM Machine')
 
-        master.iconbitmap(r'D:\My Stuff\VSCode\Python\atm-techno-talent-2019\money.ico')
+        master.iconbitmap('money.ico')
 
         # ***** Frames *****
 
