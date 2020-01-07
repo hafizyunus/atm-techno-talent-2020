@@ -23,11 +23,11 @@ class atm:
         # ***** Styles *****
 
         style = ttk.Style(mainWin)
-        style.configure("TButton", font=('Helvetica', 20), padding=10)
-        style.configure("TEntry", padding=5)
-        style.configure("TLabel", font=('Courier', 15), padding=10)
-        style.configure("B.TLabel", font=('Courier', 15, 'bold'), padding=10)
-        style.configure("L.TLabel", font=('Courier', 20), padding=10)
+        style.configure('TButton', font=('Helvetica', 20), padding=10)
+        style.configure('TEntry', padding=5)
+        style.configure('TLabel', font=('Courier', 15), padding=10)
+        style.configure('B.TLabel', font=('Courier', 15, 'bold'), padding=10)
+        style.configure('L.TLabel', font=('Courier', 20), padding=10)
 
         self.font = 'Helvetica 15'
         self.Lfont = 'Helvetica 20'
@@ -48,7 +48,7 @@ class atm:
         file.add_command(label='Logout', command=self.loginPage)
         file.add_separator()
         file.add_command(label='Quit', command=master.destroy)
-        menu.add_cascade(label='File', menu=file)
+        #menu.add_cascade(label='File', menu=file)
 
         # ***** Stuff for login *****
 
@@ -124,7 +124,7 @@ class atm:
             if eval(loggedPin) == correctPin:
                 self.homePage()
                 print('logged')                                                         #print
-                mainWin.unbind('<Return>',bind_id)
+                #mainWin.unbind('<Return>',bind_id)
             else:
                 self.comment3.config(text='Invalid credentials')
                 print('incorrect pass')                                                 #print
@@ -148,7 +148,7 @@ class atm:
                     mydbs.commit()
                     print('Deposited')                                                  #print
                     
-                    mainWin.unbind('<Return>',bind_id)
+                    #mainWin.unbind('<Return>',bind_id)
                     self.comment2.grid_remove()
                     self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Deposited!', style='TLabel', foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
@@ -180,32 +180,25 @@ class atm:
                     mydbs.commit()
                     print('Withdrawn')                                                  #print  
                     
-                    mainWin.unbind('<Return>',bind_id)
+                    #mainWin.unbind('<Return>',bind_id)
                     self.comment2.grid_remove()
                     self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Withdrawn!', style='TLabel',foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
-
-                    self.lSpace.config(width=15)
                 else:
                     self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than the available balance', style='TLabel', foreground='green')
+                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more\nthan the available balance', style='TLabel', foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
 
                     self.ok.config(width=17)
                     self.withdrawAmount.config(width=17)
-                    self.lSpace.config(width=0)  
             else:
                 self.comment2.grid_remove()
                 self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only two decimal places are allowed', style='TLabel', foreground='green')
                 self.comment2.grid(row=3, column=1, pady=5)
-                
-                self.lSpace.config(width=15)
         else:
             self.comment2.grid_remove()
-            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to deposit', style='TLabel', foreground='green')
-            self.comment2.grid(row=3, column=1, pady=5)  
-
-            self.lSpace.config(width=15)
+            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to withdraw', style='TLabel', foreground='green')
+            self.comment2.grid(row=3, column=1, pady=5)
 
     def changePin(self,*args):
         self.comment4 = ttk.Label(self.mainFrame, justify=CENTER, text='', style='TLabel', foreground='red')
@@ -231,7 +224,7 @@ class atm:
                             cursor2.execute('update user_info set pin = '+newpin+' where uid = '+loggedAcc+' ;')
                             mydbs.commit()
                             self.comment4.config(text='Account pin changed', foreground='green')
-                            mainWin.unbind('<Return>',bind_id)
+                            #mainWin.unbind('<Return>',bind_id)
                         else:
                             self.comment4.config(text='New pin does not match')
                     else:
@@ -247,6 +240,11 @@ class atm:
 
     def homePage(self):
         self.clearFrame()
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
+
         self.balance = ttk.Button(self.mainFrame, text='Check Account Balance', style='TButton', command=self.balancePage)
         self.balance.grid(row=1, column=1, sticky=W+E+N+S, pady=5)
 
@@ -270,6 +268,10 @@ class atm:
     
     def balancePage(self):
         self.clearFrame()
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor = mydb.cursor()
@@ -300,6 +302,12 @@ class atm:
     
     def depositPage(self):
         self.clearFrame()
+        global bind_id
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
+
         self.comment1 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter the amount to deposit', style='TLabel')
         self.comment1.grid(row=1, column=1, pady=5)
 
@@ -319,11 +327,16 @@ class atm:
         self.rSpace = ttk.Label(self.mainFrame, width=10)
         self.rSpace.grid(row=6, column=2, pady=100)
 
-        global bind_id
         bind_id = mainWin.bind('<Return>',self.Deposit)
 
     def withdrawPage(self):
         self.clearFrame()
+        global bind_id
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
+
         self.comment1 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter the amount to withdraw', style='TLabel')
         self.comment1.grid(row=1, column=1, pady=5)
         
@@ -343,11 +356,16 @@ class atm:
         self.rSpace = ttk.Label(self.mainFrame, width=10)
         self.rSpace.grid(row=6, column=2, pady=100)
 
-        global bind_id
         bind_id = mainWin.bind('<Return>',self.Withdraw)
 
     def pinChangePage(self):
         self.clearFrame()
+        global bind_id
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
+
         self.comment1 = ttk.Label(self.mainFrame, justify=RIGHT, style='TLabel', text='Current Account Pin:')
         self.comment1.grid(row=1, column=1, sticky=W+E+N+S)
 
@@ -367,8 +385,8 @@ class atm:
         self.newPinCheck = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width =10)
         self.newPinCheck.grid(row=3, column=2, pady=5, sticky=W+E+N+S)
 
-        self.ok = ttk.Button(self.mainFrame, style='TButton', text='Change Pin', command=self.changePin)
-        self.ok.grid(row=5, column=1, pady=5, sticky=W+E+N+S, columnspan=2)
+        self.ok = ttk.Button(self.mainFrame, style='TButton', text='Change Pin', width=20, command=self.changePin)
+        self.ok.grid(row=5, column=1, pady=5, columnspan=2)
 
         self.back = ttk.Button(self.mainFrame, text='Back', style='TButton', command=self.homePage)
         self.back.grid(row=6, column=1, pady=5, columnspan=2)
@@ -379,11 +397,15 @@ class atm:
         self.rSpace = ttk.Label(self.mainFrame, width=10)
         self.rSpace.grid(row=7, column=3, pady=100)
 
-        global bind_id
         bind_id = mainWin.bind('<Return>',self.changePin)
 
     def loginPage(self):
         self.clearFrame()
+        global bind_id
+        try:
+            mainWin.unbind('<Return>',bind_id)
+        except TclError:
+            pass
 
         global loggedAcc
         loggedAcc = ''
@@ -415,13 +437,11 @@ class atm:
         self.rSpace = ttk.Label(self.mainFrame, width=10)
         self.rSpace.grid(row=5, column=3, pady=100)
 
-        global bind_id
         bind_id = mainWin.bind('<Return>',self.auth)
 
-    
 mainWin = ThemedTk(theme='equilux')
+#mainWin.overrideredirect(True)
 mainWin.resizable(False,False)
-mainWin.maxsize(500,500)
-mainWin.minsize(500,500)
+mainWin.geometry('500x500+200+150')
 atm(mainWin)
 mainWin.mainloop()
