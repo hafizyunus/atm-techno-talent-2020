@@ -1,7 +1,6 @@
-#Enter MySQL Info -- Line 38
+#Enter MySQL Info -- Line 37
 
-from tkinter import *
-from tkinter import ttk
+from tkinter import ttk, BOTH, Menu, RIGHT, CENTER, LEFT, W, E, N, S, TclError
 from ttkthemes import ThemedTk
 
 import mysql.connector
@@ -35,10 +34,10 @@ class atm:
 
         # ***** MySQL Info *****
 
-        self.host = '' # localhost
-        self.user = ''
-        self.passwd = ''
-        self.database = ''
+        self.host = 'localhost' # localhost
+        self.user = 'hafiz'
+        self.passwd = 'theboss'
+        self.database = 'atm'
 
         # ***** Menu *****
 
@@ -200,7 +199,7 @@ class atm:
             self.comment2.grid(row=3, column=1, pady=5)
 
     def changePin(self,*args):
-        self.comment4 = ttk.Label(self.mainFrame, justify=CENTER, text='', style='TLabel', foreground='red')
+        self.comment4 = ttk.Label(self.mainFrame, text='', justify=RIGHT, style='TLabel', foreground='red')
         self.comment4.grid(row=4, column=1, pady=5, sticky=W+E+N+S, columnspan=2)
 
         currentpin = self.currentPin.get()
