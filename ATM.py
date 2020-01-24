@@ -13,7 +13,7 @@ class atm:
 
         master.title('ATM Machine')
 
-        #master.iconbitmap('money.ico')
+        master.iconbitmap('money.ico')
 
         # ***** Frames *****
 
@@ -34,21 +34,10 @@ class atm:
 
         # ***** MySQL Info *****
 
-        self.host = 'localhost' # localhost
-        self.user = 'hafiz'
-        self.passwd = 'theboss'
+        self.host = 'localhost'
+        self.user = 'root'
+        self.passwd = '123456'
         self.database = 'atm'
-
-        # ***** Menu *****
-
-        menu = Menu(master)
-        master.config(menu=menu)
-
-        file = Menu(menu, tearoff=0)
-        file.add_command(label='Logout', command=self.loginPage)
-        file.add_separator()
-        file.add_command(label='Quit', command=master.destroy)
-        #menu.add_cascade(label='File', menu=file)
 
         # ***** Stuff for login *****
 
@@ -115,18 +104,13 @@ class atm:
                     details = cursor.fetchone()
             else:
                 self.comment3.config(text='Invalid credentials')
-                print('acc does not exist')                                             #print
         else:
             self.comment3.config(text='Invalid credentials')
-            print('enter numbers')                                                      #print
         if loggedPin != '':
             if eval(loggedPin) == correctPin:
                 self.homePage()
-                print('logged')                                                         #print
-                #mainWin.unbind('<Return>',bind_id)
             else:
                 self.comment3.config(text='Invalid credentials')
-                print('incorrect pass')                                                 #print
 
     def Deposit(self,*args):
         self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='', style='TLabel', foreground='green')
@@ -144,9 +128,7 @@ class atm:
                     cursor2 = mydbs.cursor()
                     cursor2.execute('update user_info set balance = balance + '+amount+' where uid = '+loggedAcc+';')
                     mydbs.commit()
-                    print('Deposited')                                                  #print
                     
-                    #mainWin.unbind('<Return>',bind_id)
                     self.comment2.grid_remove()
                     self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Deposited!', style='TLabel', foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
@@ -176,9 +158,7 @@ class atm:
                     cursor2 = mydbs.cursor()
                     cursor2.execute('update user_info set balance = balance - '+amount+' where uid = '+loggedAcc+';')
                     mydbs.commit()
-                    print('Withdrawn')                                                  #print  
                     
-                    #mainWin.unbind('<Return>',bind_id)
                     self.comment2.grid_remove()
                     self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Withdrawn!', style='TLabel',foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
@@ -210,7 +190,6 @@ class atm:
         cursor1 = mydb.cursor()
         cursor1.execute('select pin from user_info where uid = '+loggedAcc+';')
         oldpin = str(cursor1.fetchall()[0][0])
-        print(oldpin)                                                                   #print
         mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor2 = mydbs.cursor()
         
@@ -222,7 +201,6 @@ class atm:
                             cursor2.execute('update user_info set pin = '+newpin+' where uid = '+loggedAcc+' ;')
                             mydbs.commit()
                             self.comment4.config(text='Account pin changed', foreground='green')
-                            #mainWin.unbind('<Return>',bind_id)
                         else:
                             self.comment4.config(text='New pin does not match')
                     else:
@@ -437,8 +415,7 @@ class atm:
 
         bind_id = mainWin.bind('<Return>',self.auth)
 
-mainWin = ThemedTk(theme='equilux')
-#mainWin.overrideredirect(True)
+mainWin = ThemedTk(theme='arc')
 mainWin.resizable(False,False)
 mainWin.geometry('500x500+200+150')
 atm(mainWin)
