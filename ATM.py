@@ -74,11 +74,11 @@ class atm:
 
     def isFloat(self,n):
         n = str(n)
-        return bool(re.match(r'^-?\d+(\.\d+)?$', n))
+        return bool(re.match(r'^\d+(\.\d+)?$', n))
 
     def isFloat2d(self,n):
         n = str(n)
-        return bool(re.match(r'^-?\d+(\.\d\d)?$', n))
+        return bool(re.match(r'^\d+(\.\d)?$', n)) or bool(re.match(r'^\d+(\.\d\d)?$', n))
 
     def clearFrame(self):
         for widget in self.mainFrame.winfo_children():
