@@ -74,11 +74,11 @@ class atm:
 
     def isFloat(self,n):
         n = str(n)
-        return bool(re.match(r'^\d+(\.\d+)?$', n))
+        return bool(re.match(r'^-?\d+\.?(\d+)?$', n))
 
     def isFloat2d(self,n):
         n = str(n)
-        return bool(re.match(r'^\d+(\.\d)?$', n)) or bool(re.match(r'^\d+(\.\d\d)?$', n))
+        return bool(re.match(r'^\d*\.?(\d\d?)?$', n))
 
     def clearFrame(self):
         for widget in self.mainFrame.winfo_children():
@@ -113,33 +113,35 @@ class atm:
                 self.comment3.config(text='Invalid credentials')
 
     def Deposit(self,*args):
-        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='', style='TLabel', foreground='green')
-        self.comment2.grid(row=3, column=1, pady=5)
-
         amount = self.depositAmount.get()
         if amount != '' and self.isFloat(amount):
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
             cursor1 = mydb.cursor()
             cursor1.execute('select balance from user_info where uid = '+loggedAcc+';')
-            amt = cursor1.fetchall()[0][0]
+            amt = float(cursor1.fetchall()[0][0])
             if self.isFloat2d(amount):
                 if len(str(amt + eval(amount))) < 20:
                     mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
                     cursor2 = mydbs.cursor()
-                    cursor2.execute('update user_info set balance = balance + '+amount+' where uid = '+loggedAcc+';')
-                    mydbs.commit()
-                    
-                    self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Deposited!', style='TLabel', foreground='green')
-                    self.comment2.grid(row=3, column=1, pady=5)
+                    try:
+                        cursor2.execute('update user_info set balance = balance + '+amount+' where uid = '+loggedAcc+';')
+                        mydbs.commit()
+
+                        self.comment2.grid_remove()
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Deposited!', style='TLabel', foreground='green')
+                        self.comment2.grid(row=3, column=1, pady=5)
+                    except mysql.connector.errors.DataError:
+                        self.comment2.grid_remove()
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='green')
+                        self.comment2.grid(row=3, column=1, pady=5)
                 else:
                     self.comment2.grid_remove()
                     self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='green')
                     self.comment2.grid(row=3, column=1, pady=5)
             else:
                 self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only two decimal places are allowed', style='TLabel', foreground='green')
-                self.comment2.grid(row=3, column=1, pady=5)
+                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='green')
+                self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
         else:
             self.comment2.grid_remove()
             self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to deposit', style='TLabel', foreground='green')
@@ -151,28 +153,33 @@ class atm:
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
             cursor1 = mydb.cursor()
             cursor1.execute('select balance from user_info where uid = '+loggedAcc+';')
-            amt = cursor1.fetchall()[0][0]
+            amt = float(cursor1.fetchall()[0][0])
             if self.isFloat2d(amount):
                 if (amt-eval(amount)) > 1000:
-                    mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-                    cursor2 = mydbs.cursor()
-                    cursor2.execute('update user_info set balance = balance - '+amount+' where uid = '+loggedAcc+';')
-                    mydbs.commit()
-                    
-                    self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Withdrawn!', style='TLabel',foreground='green')
-                    self.comment2.grid(row=3, column=1, pady=5)
+                    try:
+                        mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
+                        cursor2 = mydbs.cursor()
+                        cursor2.execute('update user_info set balance = balance - '+amount+' where uid = '+loggedAcc+';')
+                        mydbs.commit()
+                        
+                        self.comment2.grid_remove()
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text=str(amount)+' Withdrawn!', style='TLabel',foreground='green')
+                        self.comment2.grid(row=3, column=1, pady=5)
+                    except mysql.connector.errors.DataError:
+                        self.comment2.grid_remove()
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='green')
+                        self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
                 else:
                     self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more\nthan the available balance', style='TLabel', foreground='green')
-                    self.comment2.grid(row=3, column=1, pady=5)
+                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='green')
+                    self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
 
                     self.ok.config(width=17)
                     self.withdrawAmount.config(width=17)
             else:
                 self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only two decimal places are allowed', style='TLabel', foreground='green')
-                self.comment2.grid(row=3, column=1, pady=5)
+                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two decimal\nplaces are allowed', style='TLabel', foreground='green')
+                self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
         else:
             self.comment2.grid_remove()
             self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to withdraw', style='TLabel', foreground='green')
