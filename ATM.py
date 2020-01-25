@@ -132,19 +132,19 @@ class atm:
                         self.comment2.grid(row=3, column=1, pady=5)
                     except mysql.connector.errors.DataError:
                         self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='green')
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='red')
                         self.comment2.grid(row=3, column=1, pady=5)
                 else:
                     self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='green')
+                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter a smaller amount', style='TLabel', foreground='red')
                     self.comment2.grid(row=3, column=1, pady=5)
             else:
                 self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='green')
+                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='red')
                 self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
         else:
             self.comment2.grid_remove()
-            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to deposit', style='TLabel', foreground='green')
+            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to deposit', style='TLabel', foreground='red')
             self.comment2.grid(row=3, column=1, pady=5)
 
     def Withdraw(self,*args):
@@ -167,22 +167,22 @@ class atm:
                         self.comment2.grid(row=3, column=1, pady=5)
                     except mysql.connector.errors.DataError:
                         self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='green')
+                        self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='red')
                         self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
                 else:
                     self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='green')
+                    self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='red')
                     self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
 
                     self.ok.config(width=17)
                     self.withdrawAmount.config(width=17)
             else:
                 self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two decimal\nplaces are allowed', style='TLabel', foreground='green')
+                self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='red')
                 self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
         else:
             self.comment2.grid_remove()
-            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to withdraw', style='TLabel', foreground='green')
+            self.comment2 = ttk.Label(self.mainFrame, justify=CENTER, text='Enter an amount to withdraw', style='TLabel', foreground='red')
             self.comment2.grid(row=3, column=1, pady=5)
 
     def changePin(self,*args):
@@ -202,7 +202,7 @@ class atm:
         
         if oldpin == currentpin:
             if newpin != '':
-                if currentpin != newpin:
+                if currentpin != newpin and newpin.isdigit():
                     if len(newpin) == 4:
                         if newpin == newpincheck:
                             cursor2.execute('update user_info set pin = '+newpin+' where uid = '+loggedAcc+' ;')
