@@ -1,15 +1,12 @@
 #Enter MySQL Info -- Line 37
 
-#Exit button in loginPage
 #General alignment issues
 #Proof read
-#Loans
-#Sign up feature
 #Remove extra instances of mydbs db connections
-#Entry widget text alignments
+#
+#Entry widget text alignments made common
 #optional(definitely) minimum balance added for new users
 #dont allow admin into homepage
-#set changing comments column=0 and columnspan=3 and anchor=center
 
 from tkinter import ttk, BOTH, Menu, RIGHT, CENTER, LEFT, W, E, N, S, TclError, Listbox, END
 from ttkthemes import ThemedTk
@@ -150,7 +147,7 @@ class atm:
             cursor4.execute('update user_info set loans = loans + '+str(interest)+', loan_date = \''+str(today)+'\' where uid = '+self.loggedAcc+';')
             #mydb.commit()
 
-    def signUp(self, *args):
+    def signUp(self,*args):
         name = self.name.get()
         pin = self.pin.get()
         pinConfirm = self.pinConfirm.get()
@@ -172,9 +169,9 @@ class atm:
         cursor4.execute('select uid from user_requests;')
         pendingUid = cursor4.fetchall()
 
-        uid = random.randint(1000,1999)
+        uid = random.randint(1000,9999)
         while (uid,) in existingUid or (uid,) in pendingUid:
-            uid = random.randint(1000,1999)
+            uid = random.randint(1000,9999)
 
         if name:
             if len(name) < 20:
@@ -187,7 +184,7 @@ class atm:
                                     cursor5.execute('insert into user_requests values(\''+name+'\','+str(uid)+','+pin+');')
                                     mydb.commit()
                                     
-                                    self.comment4.config(text='Your Account number is'+str(uid)+'.\nAccount Activation Pending.', foreground='green')
+                                    self.comment4.config(text='Your Account number is '+str(uid)+'.\nAccount Activation Pending.', foreground='green')
                                 else:
                                     self.comment4.config(text='Entered Account Pins do not match.')
                             else:
@@ -203,7 +200,7 @@ class atm:
         else:
             self.comment4.config(text='Enter Credintials.')
 
-    def authChoose(self, *args):
+    def authChoose(self,*args):
         if self.Admin:
             self.adminAuth()
         else:
@@ -213,8 +210,8 @@ class atm:
         entAdmUid = self.name.get()
         entAdmPin = self.pin.get()
 
-        if entAdmUid == self.adminUser:
-            if entAdmPin == self.adminPass:
+        if entAdmUid == str(self.adminUser):
+            if entAdmPin == str(self.adminPass):
                 self.adminPage()
             else:
                 self.comment3.config(text='Invalid credentials')
@@ -224,6 +221,7 @@ class atm:
     def auth(self):
         self.loggedAcc = self.name.get()
         self.loggedPin = self.pin.get()
+        correctPin = None
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor = mydb.cursor()
@@ -266,25 +264,15 @@ class atm:
                         cursor2.execute('update user_info set balance = balance + '+amount+' where uid = '+self.loggedAcc+';')
                         mydbs.commit()
 
-                        self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, text=str(amount)+' Deposited!', style='TLabel', foreground='green')
-                        self.comment2.grid(row=3, column=1, pady=5)
+                        self.comment2.config(text=str(amount)+' Deposited!', foreground='green')
                     except mysql.connector.errors.DataError:
-                        self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, text='Enter a smaller amount', style='TLabel', foreground='red')
-                        self.comment2.grid(row=3, column=1, pady=5)
+                        self.comment2.config(text='Enter a smaller amount', foreground='red')
                 else:
-                    self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, text='Enter a smaller amount', style='TLabel', foreground='red')
-                    self.comment2.grid(row=3, column=1, pady=5)
+                    self.comment2.config(text='Enter a smaller amount', foreground='red')
             else:
-                self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='red')
-                self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
+                self.comment2.config(text='Only positive amounts with two\ndecimal places are allowed', foreground='red')
         else:
-            self.comment2.grid_remove()
-            self.comment2 = ttk.Label(self.mainFrame, text='Enter an amount to deposit', style='TLabel', foreground='red')
-            self.comment2.grid(row=3, column=1, pady=5)
+            self.comment2.config(text='Enter an amount to deposit', foreground='red')
 
     def Withdraw(self,*args):
         amount = self.withdrawAmount.get()
@@ -302,28 +290,18 @@ class atm:
                         cursor2.execute('update user_info set balance = balance - '+amount+' where uid = '+self.loggedAcc+';')
                         mydbs.commit()
                         
-                        self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, text=str(amount)+' Withdrawn!', style='TLabel',foreground='green')
-                        self.comment2.grid(row=3, column=1, pady=5)
+                        self.comment2.config(text=str(amount)+' Withdrawn!', foreground='green')
                     except mysql.connector.errors.DataError:
-                        self.comment2.grid_remove()
-                        self.comment2 = ttk.Label(self.mainFrame, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='red')
-                        self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
+                        self.comment2.config(text='The entered amount is more than\nthe available balance', foreground='red')
                 else:
-                    self.comment2.grid_remove()
-                    self.comment2 = ttk.Label(self.mainFrame, text='The entered amount is more than\nthe available balance', style='TLabel', foreground='red')
-                    self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
+                    self.comment2.config(text='The entered amount is more than\nthe available balance', foreground='red')
 
-                    self.ok.config(width=17)
-                    self.withdrawAmount.config(width=17)
+                    '''self.ok.config(width=17)
+                    self.withdrawAmount.config(width=17)'''
             else:
-                self.comment2.grid_remove()
-                self.comment2 = ttk.Label(self.mainFrame, text='Only positive amounts with two\ndecimal places are allowed', style='TLabel', foreground='red')
-                self.comment2.grid(row=3, column=0, pady=5, columnspan=2)
+                self.comment2.config(text='Only positive amounts with two\ndecimal places are allowed', foreground='red')
         else:
-            self.comment2.grid_remove()
-            self.comment2 = ttk.Label(self.mainFrame, text='Enter an amount to withdraw', style='TLabel', foreground='red')
-            self.comment2.grid(row=3, column=1, pady=5)
+            self.comment2.config(text='Enter an amount to withdraw', foreground='red')
 
     def getLoan(self,*args):
         amount = self.loanAmount.get()
@@ -350,39 +328,47 @@ class atm:
 
                         self.comment2.config(text='The required amount has been credited', foreground='green')
                     else:
-                        self.comment2.config(text='Current account balance does not meet the required balance', foreground='red')
+                        self.comment2.config(text='Current account balance does not meet\nthe required balance', foreground='red')
                 else:
                     self.comment2.config(text='Multiple loans are not allowed', foreground='red')
             else:
-                self.comment2.config(text='Only positive amounts with two decimal places are allowed', foreground='red')
+                self.comment2.config(text='Only positive amounts with two\ndecimal places are allowed', foreground='red')
         else:
             self.comment2.config(text='Enter an amount', foreground='red')
 
-    def repayLoan(self, *args):
-        amount = self.loanAmount.get()
+    def repayLoan(self,*args):
+        try:
+            amount = eval(self.loanAmount.get())
+        except:
+            amount = self.loanAmount.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor1 = mydb.cursor()
         cursor1.execute('select loans from user_info where uid = '+self.loggedAcc+';')
-        loans = cursor1.fetchone()[0]
+        try:
+            loans = float(cursor1.fetchone()[0])
+        except:
+            loans = cursor1.fetchone()
 
         if amount != '' and self.isFloat(amount):
             if self.isFloat2d(amount):
                 if loans:
                     if amount < loans:
                         cursor2 = mydb.cursor()
-                        cursor2.execute('update user_info set loans = loans - '+amount+' where uid = '+self.loggedAcc+';')
+                        cursor2.execute('update user_info set loans = loans - '+str(amount)+' where uid = '+self.loggedAcc+';')
                         mydb.commit()
 
-                        self.comment2.config(text=amount+' repayed!', foreground='green')
+                        self.showBalance.config(text="%.2f" %(float(loans-amount)))
+                        self.comment2.config(text=str(amount)+' repayed!', foreground='green')
                     elif amount == loans:
                         cursor2 = mydb.cursor()
-                        cursor2.execute('update user_info set loans = None, loan_date = None where uid = '+self.loggedAcc+';')
+                        cursor2.execute('update user_info set loans = null, loan_date = null, monthly_interest = null where uid = '+self.loggedAcc+';')
                         mydb.commit()
 
-                        self.comment2.config(text=amount+' repayed!', foreground='green')
+                        self.showBalance.config(text='None')
+                        self.comment2.config(text=str(amount)+' repayed!', foreground='green')
                     else:
-                        self.comment2.config(text='Entered amount is greater than the loan amount', foreground='red')
+                        self.comment2.config(text='Entered amount is greater than the\nloan amount', foreground='red')
                 else:
                     self.comment2.config(text='No current loans.', foreground='red')
             else:
@@ -391,12 +377,10 @@ class atm:
             self.comment2.config(text='Enter an amount to withdraw', foreground='red')
 
     def changePin(self,*args):
-        self.comment4 = ttk.Label(self.mainFrame, text='', justify=RIGHT, style='TLabel', foreground='red', anchor=CENTER)
-        self.comment4.grid(row=4, column=1, pady=5, sticky=W+E+N+S, columnspan=2)
-
         currentpin = self.currentPin.get()
         newpin = self.newPin.get()
-        newpincheck = self.newPinCheck.get() 
+        newpincheck = self.newPinCheck.get()
+
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor1 = mydb.cursor()
         cursor1.execute('select pin from user_info where uid = '+self.loggedAcc+';')
@@ -423,29 +407,64 @@ class atm:
         else:
             self.comment4.config(text='Old pin is incorrect')
 
-    def newUser(self):
-        self.comment4 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red')
-        self.comment4.grid(row=4, column=1, pady=5, sticky=W+E+N+S, columnspan=2)
-
-        nAcc = self.newAcc.get()
-        nPin = self.newPin.get()
-
-        # Shouldnt be the same acc name
+    def newUser(self,*args):
+        name = self.newName.get()
+        uid = self.newAcc.get()
+        pin = self.newPin.get()
+        pinConfirm = self.newPinCheck.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
-        if nAcc.isdigit() and nPin.isdigit():
-            if len(str(nAcc)) == 4:
-                if len(str(nPin)) == 4:
-                    cursor.execute('insert into user_info values('+nAcc+','+nPin+',1000);')
-                    mydb.commit()
-                    self.comment4.config(text='Account Created', foreground='green')
+        cursor1 = mydb.cursor()
+        cursor1.execute('select name from user_info;')
+        nameList = cursor1.fetchall()
+
+        cursor2 = mydb.cursor()
+        cursor2.execute('select name from user_requests;')
+        pendingName = cursor2.fetchall()
+
+        cursor3 = mydb.cursor()
+        cursor3.execute('select uid from user_info;')
+        existingUid = cursor3.fetchall()
+
+        cursor4 = mydb.cursor()
+        cursor4.execute('select uid from user_requests;')
+        pendingUid = cursor4.fetchall()
+
+        if name:
+            if len(name) < 20:
+                if (name,) not in nameList:
+                    if (name,) not in pendingName:
+                        if len(uid) == 4:
+                            if (eval(uid),) not in existingUid:
+                                if (eval(uid),) not in pendingUid:
+                                    if pin.isdigit() and pinConfirm.isdigit():
+                                        if len(pin) == 4 and len(pinConfirm) == 4:
+                                            if pin == pinConfirm:
+                                                cursor5 = mydb.cursor()
+                                                cursor5.execute('insert into user_info (name,uid,pin,balance) values(\''+name+'\','+uid+','+pin+',1000);')
+                                                mydb.commit()
+
+                                                self.comment5.config(text='Account created!', foreground='green')
+                                            else:
+                                                self.comment5.config(text='Entered Account Pins do not match.', foreground='red')
+                                        else:
+                                            self.comment5.config(text='Account Pin must consist 4 digits.', foreground='red')
+                                    else:
+                                        self.comment5.config(text='Account Pin must be of numbers.', foreground='red')
+                                else:
+                                    self.comment5.config(text='Account Number already exists\n(in Requests)', foreground='red')
+                            else:
+                                self.comment5.config(text='Account Number already exists.', foreground='red')
+                        else:
+                            self.comment5.config(text='Account Number must consist 4 digits.', foreground='red')
+                    else:
+                        self.comment5.config(text='Account Name already exists\n(in Requests)', foreground='red')
                 else:
-                    self.comment4.config(text='Account Pin should be only 4 numbers long')
+                    self.comment5.config(text='Account Name already exists.', foreground='red')
             else:
-                self.comment4.config(text='Account Number should be only 8 numbers long')
+                self.comment5.config(text='Name Too Long.', foreground='red')
         else:
-            self.comment4.config(text='Enter numbers only')
+            self.comment5.config(text='Enter Credintials.', foreground='red')
 
     def delUser(self):
         try:
@@ -468,10 +487,10 @@ class atm:
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
             cursor1 = mydb.cursor()
             cursor1.execute('select * from user_requests where name = \''+newUser+'\';')
-            details = str(cursor1.fetchone())
+            details = cursor1.fetchone()
 
             cursor2 = mydb.cursor()
-            cursor2.execute('insert into user_info (name,uid,pin) values'+details+';')
+            cursor2.execute('insert into user_info (name,uid,pin,balance) values(\''+details[0]+'\','+str(details[1])+','+str(details[2])+',1000);')
 
             cursor3 = mydb.cursor()
             cursor3.execute('delete from user_requests where name = \''+newUser+'\';')
@@ -505,7 +524,7 @@ class atm:
         self.comment1 = ttk.Label(self.mainFrame, style='TLabel', text='Enter your Name:', anchor=E)
         self.comment1.grid(row=1, column=1, sticky=W+E+N+S)
         
-        self.name = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.font, width=13)
+        self.name = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, width=13)
         self.name.grid(row=1, column=2, padx=5, pady=5)
         self.name.focus_set()
         
@@ -525,7 +544,7 @@ class atm:
         self.comment4.grid(row=4, column=1, padx=5, pady=5, sticky=W+E+N+S, columnspan=2)
 
         self.signUpButton = ttk.Button(self.mainFrame, text='Sign Up', style='TButton', command=self.signUp)
-        self.signUpButton.grid(row=5, column=1, columnspan=2, sticky=W+E+N+S)
+        self.signUpButton.grid(row=5, column=1, columnspan=2, sticky=N+S)
 
         self.back = ttk.Button(self.mainFrame, text='Back', style='S.TButton', command=self.menuPage, width=5)
         self.back.grid(row=6, column=1, columnspan=2, pady=10)
@@ -660,6 +679,9 @@ class atm:
         self.depositAmount.grid(row=2, column=1, pady=5)
         self.depositAmount.focus_set()
 
+        self.comment2 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red', anchor=CENTER)
+        self.comment2.grid(row=3, column=0, pady=5, columnspan=3)
+
         self.ok = ttk.Button(self.mainFrame, style='TButton', text='Deposit', command=self.Deposit, width=17)
         self.ok.grid(row=4,column=1, pady=5)
 
@@ -669,7 +691,7 @@ class atm:
         self.lSpace = ttk.Label(self.mainFrame, width=5)
         self.lSpace.grid(row=0, column=0, pady=40)
 
-        self.rSpace = ttk.Label(self.mainFrame, width=10)
+        self.rSpace = ttk.Label(self.mainFrame, width=4)
         self.rSpace.grid(row=6, column=2, pady=100)
 
         self.bind_id = mainWin.bind('<Return>',self.Deposit)
@@ -687,6 +709,9 @@ class atm:
         self.withdrawAmount = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.Lfont, width=17)
         self.withdrawAmount.grid(row=2, column=1, pady=5)
         self.withdrawAmount.focus_set()
+
+        self.comment2 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red', anchor=CENTER)
+        self.comment2.grid(row=3, column=0, pady=5, columnspan=3)
         
         self.ok = ttk.Button(self.mainFrame, text='Withdraw', style='TButton', command=self.Withdraw, width=17)
         self.ok.grid(row=4,column=1, pady=5)
@@ -697,7 +722,7 @@ class atm:
         self.lSpace = ttk.Label(self.mainFrame, width=4)
         self.lSpace.grid(row=0, column=0, pady=40)
 
-        self.rSpace = ttk.Label(self.mainFrame, width=10)
+        self.rSpace = ttk.Label(self.mainFrame, width=4)
         self.rSpace.grid(row=6, column=2, pady=100)
 
         self.bind_id = mainWin.bind('<Return>',self.Withdraw)
@@ -774,7 +799,7 @@ class atm:
         self.loanAmount.grid(row=2, column=1, pady=5)
         self.loanAmount.focus_set()
 
-        self.comment2 = ttk.Label(self.mainFrame, text='', style='TLabel', foreground='red', anchor=CENTER)
+        self.comment2 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red', anchor=CENTER)
         self.comment2.grid(row=3, column=0, columnspan=3, pady=5)
         
         self.ok = ttk.Button(self.mainFrame, text='Get Loan', style='TButton', command=self.getLoan, width=17)
@@ -786,7 +811,7 @@ class atm:
         self.lSpace = ttk.Label(self.mainFrame, width=7)
         self.lSpace.grid(row=0, column=0, pady=40)
 
-        self.rSpace = ttk.Label(self.mainFrame, width=10)
+        self.rSpace = ttk.Label(self.mainFrame, width=4)
         self.rSpace.grid(row=6, column=2, pady=100)
 
         self.bind_id = mainWin.bind('<Return>',self.getLoan)
@@ -813,8 +838,8 @@ class atm:
         self.loanAmount.grid(row=3, column=1, pady=5)
         self.loanAmount.focus_set()
 
-        self.comment2 = ttk.Label(self.mainFrame, text='', style='TLabel', foreground='red', anchor=CENTER)
-        self.comment2.grid(row=4, column=1, padx=5, pady=5)
+        self.comment2 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red', anchor=CENTER)
+        self.comment2.grid(row=4, column=0, padx=5, pady=5, columnspan=3)
 
         self.ok = ttk.Button(self.mainFrame, text='Repay Loan', style='TButton', command=self.repayLoan, width=15)
         self.ok.grid(row=5, column=1, pady=5)
@@ -825,7 +850,7 @@ class atm:
         self.lSpace = ttk.Label(self.mainFrame, width=8)
         self.lSpace.grid(row=0, column=0, pady=10)
 
-        self.rSpace = ttk.Label(self.mainFrame, width=10)
+        self.rSpace = ttk.Label(self.mainFrame, width=7)
         self.rSpace.grid(row=7, column=2, pady=100)
 
         self.bind_id = mainWin.bind('<Return>',self.repayLoan)
@@ -855,6 +880,9 @@ class atm:
 
         self.newPinCheck = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width =10)
         self.newPinCheck.grid(row=3, column=2, pady=5)
+
+        self.comment4 = ttk.Label(self.mainFrame, text='', justify=RIGHT, style='TLabel', foreground='red', anchor=CENTER)
+        self.comment4.grid(row=4, column=0, pady=5, sticky=W+E+N+S, columnspan=3)
 
         self.ok = ttk.Button(self.mainFrame, style='TButton', text='Change Pin', width=20, command=self.changePin)
         self.ok.grid(row=5, column=1, pady=5, columnspan=2)
@@ -936,36 +964,47 @@ class atm:
         except TclError:
             pass
 
-        self.comment1 = ttk.Label(self.mainFrame, style='TLabel', text='New Account Number:', anchor=E)
+        self.comment1 = ttk.Label(self.mainFrame, style='TLabel', text='Enter User\'s Name:', anchor=E)
         self.comment1.grid(row=1, column=1, sticky=W+E+N+S, pady=5, padx=5)
 
-        self.newAcc = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, width =14)
-        self.newAcc.grid(row=1, column=2, sticky=W+E+N+S, pady=5, padx=5)
-        self.newAcc.focus_set()
-        
-        self.comment2 = ttk.Label(self.mainFrame, style='TLabel', text='New Account Pin:', anchor=E)
+        self.newName = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, width =14)
+        self.newName.grid(row=1, column=2, sticky=W+E+N+S, pady=5, padx=5)
+        self.newName.focus_set()
+
+        self.comment2 = ttk.Label(self.mainFrame, style='TLabel', text='New Account Number:', anchor=E)
         self.comment2.grid(row=2, column=1, sticky=W+E+N+S, pady=5, padx=5)
 
-        self.newPin = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width=14)
-        self.newPin.grid(row=2, column=2, sticky=W+E+N+S, pady=5, padx=5)
-
-        self.comment3 = ttk.Label(self.mainFrame, style='TLabel', text='Repeat Account Pin:', anchor=E)
+        self.newAcc = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, width =14)
+        self.newAcc.grid(row=2, column=2, sticky=W+E+N+S, pady=5, padx=5)
+        
+        self.comment3 = ttk.Label(self.mainFrame, style='TLabel', text='New Account Pin:', anchor=E)
         self.comment3.grid(row=3, column=1, sticky=W+E+N+S, pady=5, padx=5)
 
+        self.newPin = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width=14)
+        self.newPin.grid(row=3, column=2, sticky=W+E+N+S, pady=5, padx=5)
+
+        self.comment4 = ttk.Label(self.mainFrame, style='TLabel', text='Repeat Account Pin:', anchor=E)
+        self.comment4.grid(row=4, column=1, sticky=W+E+N+S, pady=5, padx=5)
+
         self.newPinCheck = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width =14)
-        self.newPinCheck.grid(row=3, column=2, sticky=W+E+N+S, pady=5, padx=5)
+        self.newPinCheck.grid(row=4, column=2, sticky=W+E+N+S, pady=5, padx=5)
+
+        self.comment5 = ttk.Label(self.mainFrame, text='', justify=CENTER, style='TLabel', foreground='red', anchor=CENTER)
+        self.comment5.grid(row=5, column=1, pady=5, sticky=W+E+N+S, columnspan=3)
 
         self.ok = ttk.Button(self.mainFrame, text='Create Account', style='TButton', width=20, command=self.newUser)
-        self.ok.grid(row=5, column=1, columnspan=2, sticky=N+S, pady=5, padx=5)
+        self.ok.grid(row=6, column=1, columnspan=2, sticky=N+S, pady=5, padx=5)
 
         self.back = ttk.Button(self.mainFrame, text='Back', style='S.TButton', command=self.adminPage, width=5)
-        self.back.grid(row=6, column=1, columnspan=2, sticky=N+S, pady=15, padx=5)
+        self.back.grid(row=7, column=1, columnspan=2, sticky=N+S, pady=15, padx=5)
         
         self.lSpace = ttk.Label(self.mainFrame, width=0)
-        self.lSpace.grid(row=0, column=0, pady=30)
+        self.lSpace.grid(row=0, column=0, pady=10)
 
-        self.rSpace = ttk.Label(self.mainFrame, width=10)
-        self.rSpace.grid(row=7, column=3, pady=100)
+        self.rSpace = ttk.Label(self.mainFrame, width=0)
+        self.rSpace.grid(row=8, column=3, pady=100)
+
+        self.bind_id = mainWin.bind('<Return>',self.newUser)
 
     def removeUserPage(self):
         self.clearFrame()
