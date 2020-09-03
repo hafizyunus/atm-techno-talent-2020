@@ -3,9 +3,7 @@
 #General alignment issues
 #Proof read
 #Remove extra instances of mydbs db connections
-#
 #Entry widget text alignments made common
-#optional(definitely) minimum balance added for new users
 #dont allow admin into homepage
 
 from tkinter import ttk, BOTH, Menu, RIGHT, CENTER, LEFT, W, E, N, S, TclError, Listbox, END
