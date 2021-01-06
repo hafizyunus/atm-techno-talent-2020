@@ -54,7 +54,6 @@ class atm:
         cursor = mydb.cursor()
         cursor.execute('select pin, uid from user_info where name = \'admin\';')
         self.adminUser, self.adminPass = cursor.fetchone()
-
         self.Admin = False
 
         # ***** Random Variables *****
