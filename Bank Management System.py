@@ -181,21 +181,21 @@ class atm:
                                     cursor5.execute('insert into user_requests values(\''+name+'\','+str(uid)+','+pin+');')
                                     mydb.commit()
                                     
-                                    self.comment4.config(text='Your Account number is '+str(uid)+'.\nAccount Activation Pending.', foreground='green')
+                                    self.comment4.config(text='Your Account number is '+str(uid)+'.\nAccount Activation Pending', foreground='green')
                                 else:
-                                    self.comment4.config(text='Entered Account Pins do not match.')
+                                    self.comment4.config(text='Entered Account Pins do not match')
                             else:
-                                self.comment4.config(text='Account Pin must consist 4 digits.')
+                                self.comment4.config(text='Account Pin must consist 4 digits')
                         else:
-                            self.comment4.config(text='Account Pin must be of numbers.')
+                            self.comment4.config(text='Account Pin must be of numbers')
                     else:
-                        self.comment4.config(text='Account Activation Pending.')
+                        self.comment4.config(text='Account Activation Pending')
                 else:
-                    self.comment4.config(text='Account Name already exists.')
+                    self.comment4.config(text='Account Name already exists')
             else:
-                self.comment4.config(text='Name Too Long.')
+                self.comment4.config(text='Name Too Long')
         else:
-            self.comment4.config(text='Enter Credintials.')
+            self.comment4.config(text='Enter Credintials')
 
     def authChoose(self,*args):
         if self.Admin:
@@ -221,21 +221,27 @@ class atm:
         correctPin = None
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
-        cursor.execute('select * from user_info;')
-        details = cursor.fetchone()
+        cursor1 = mydb.cursor()
+        cursor1.execute('select * from user_info;')
+        details = cursor1.fetchone()
+        cursor2 = mydb.cursor()
+        cursor2.execute('select * from user_requests;')
+        pendDetails = mydb.cursor2()
         
         if self.loggedAcc.isdigit() and self.loggedPin.isdigit():
-            while details is not None:
-                if eval(self.loggedAcc) == details[1]:
-                    correctPin = details[2]
-                    self.amt = details[3]
-                    self.uName = details[0]
-                    break
+            if eval(self.loggedAcc) != pendDetails[1]:
+                while details is not None:
+                    if eval(self.loggedAcc) == details[1]:
+                        correctPin = details[2]
+                        self.amt = details[3]
+                        self.uName = details[0]
+                        break
+                    else:
+                        details = cursor1.fetchone()
                 else:
-                    details = cursor.fetchone()
+                    self.comment3.config(text='Invalid credentials')
             else:
-                self.comment3.config(text='Invalid credentials')
+                self.comment3.config(text='Account activation pending')
         else:
             self.comment3.config(text='Invalid credentials')
         if self.loggedPin:
@@ -367,7 +373,7 @@ class atm:
                     else:
                         self.comment2.config(text='Entered amount is greater than the\nloan amount', foreground='red')
                 else:
-                    self.comment2.config(text='No current loans.', foreground='red')
+                    self.comment2.config(text='No current loans', foreground='red')
             else:
                 self.comment2.config(text='Only positive amounts with two\ndecimal places are allowed', foreground='red')
         else:
@@ -443,25 +449,25 @@ class atm:
 
                                                 self.comment5.config(text='Account created!', foreground='green')
                                             else:
-                                                self.comment5.config(text='Entered Account Pins do not match.', foreground='red')
+                                                self.comment5.config(text='Entered Account Pins do not match', foreground='red')
                                         else:
-                                            self.comment5.config(text='Account Pin must consist 4 digits.', foreground='red')
+                                            self.comment5.config(text='Account Pin must consist 4 digits', foreground='red')
                                     else:
-                                        self.comment5.config(text='Account Pin must be of numbers.', foreground='red')
+                                        self.comment5.config(text='Account Pin must be of numbers', foreground='red')
                                 else:
                                     self.comment5.config(text='Account Number already exists\n(in Requests)', foreground='red')
                             else:
-                                self.comment5.config(text='Account Number already exists.', foreground='red')
+                                self.comment5.config(text='Account Number already exists', foreground='red')
                         else:
-                            self.comment5.config(text='Account Number must consist 4 digits.', foreground='red')
+                            self.comment5.config(text='Account Number must consist 4 digits', foreground='red')
                     else:
                         self.comment5.config(text='Account Name already exists\n(in Requests)', foreground='red')
                 else:
-                    self.comment5.config(text='Account Name already exists.', foreground='red')
+                    self.comment5.config(text='Account Name already exists', foreground='red')
             else:
-                self.comment5.config(text='Name Too Long.', foreground='red')
+                self.comment5.config(text='Name Too Long', foreground='red')
         else:
-            self.comment5.config(text='Enter Credintials.', foreground='red')
+            self.comment5.config(text='Enter Credintials', foreground='red')
 
     def delUser(self):
         try:
