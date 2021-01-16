@@ -2,7 +2,6 @@
 
 #General alignment issues
 #Proof read
-#Remove extra instances of mydbs db connections
 #Entry widget text alignments made common
 #dont allow admin into homepage
 
@@ -51,7 +50,7 @@ class atm:
         # ***** Admin Info *****
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select pin, uid from user_info where name = \'admin\';')
         self.adminUser, self.adminPass = cursor.fetchone()
         self.Admin = False
@@ -124,15 +123,15 @@ class atm:
 
     def addInterest(self):
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select loans from user_info where uid = '+self.loggedAcc+';')
         loans = cursor1.fetchone()[0]
         if loans:
-            cursor2 = mydb.cursor()
+            cursor2 = mydb.cursor(buffered=True)
             cursor2.execute('select loan_date from user_info where uid = '+self.loggedAcc+';')
             loan_date = cursor2.fetchone()[0]
             
-            cursor3 = mydb.cursor()
+            cursor3 = mydb.cursor(buffered=True)
             cursor3.execute('select monthly_interest from user_info where uid = '+self.loggedAcc+';')
             monthly_interest = cursor3.fetchone()[0]
 
@@ -140,7 +139,7 @@ class atm:
             today = datetime.date.today()
             interest = monthly_interest * months
 
-            cursor4 = mydb.cursor()
+            cursor4 = mydb.cursor(buffered=True)
             cursor4.execute('update user_info set loans = loans + '+str(interest)+', loan_date = \''+str(today)+'\' where uid = '+self.loggedAcc+';')
             #mydb.commit()
 
@@ -150,19 +149,19 @@ class atm:
         pinConfirm = self.pinConfirm.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select name from user_info;')
         nameList = cursor1.fetchall()
 
-        cursor2 = mydb.cursor()
+        cursor2 = mydb.cursor(buffered=True)
         cursor2.execute('select name from user_requests;')
         pendingName = cursor2.fetchall()
 
-        cursor3 = mydb.cursor()
+        cursor3 = mydb.cursor(buffered=True)
         cursor3.execute('select uid from user_info;')
         existingUid = cursor3.fetchall()
 
-        cursor4 = mydb.cursor()
+        cursor4 = mydb.cursor(buffered=True)
         cursor4.execute('select uid from user_requests;')
         pendingUid = cursor4.fetchall()
 
@@ -177,7 +176,7 @@ class atm:
                         if pin.isdigit() and pinConfirm.isdigit():
                             if len(pin) == 4 and len(pinConfirm) == 4:
                                 if pin == pinConfirm:
-                                    cursor5 = mydb.cursor()
+                                    cursor5 = mydb.cursor(buffered=True)
                                     cursor5.execute('insert into user_requests values(\''+name+'\','+str(uid)+','+pin+');')
                                     mydb.commit()
                                     
@@ -221,15 +220,19 @@ class atm:
         correctPin = None
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select * from user_info;')
         details = cursor1.fetchone()
-        cursor2 = mydb.cursor()
-        cursor2.execute('select * from user_requests;')
-        pendDetails = mydb.cursor2()
+
+        cursor2 = mydb.cursor(buffered=True)
+        cursor2.execute('select uid from user_requests;')
+        pendDetails = cursor2.fetchall()
         
         if self.loggedAcc.isdigit() and self.loggedPin.isdigit():
-            if eval(self.loggedAcc) != pendDetails[1]:
+            for pendUser in pendDetails:
+                if eval(self.loggedAcc) == pendUser[0]:
+                    self.comment3.config(text='Account activation pending')
+            else:
                 while details is not None:
                     if eval(self.loggedAcc) == details[1]:
                         correctPin = details[2]
@@ -240,8 +243,6 @@ class atm:
                         details = cursor1.fetchone()
                 else:
                     self.comment3.config(text='Invalid credentials')
-            else:
-                self.comment3.config(text='Account activation pending')
         else:
             self.comment3.config(text='Invalid credentials')
         if self.loggedPin:
@@ -255,17 +256,16 @@ class atm:
 
         if amount != '' and self.isFloat(amount):
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-            cursor1 = mydb.cursor()
+            cursor1 = mydb.cursor(buffered=True)
             cursor1.execute('select balance from user_info where uid = '+self.loggedAcc+';')
             self.amt = float(cursor1.fetchone()[0])
 
             if self.isFloat2d(amount):
                 if len(str(self.amt + eval(amount))) < 20:
-                    mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-                    cursor2 = mydbs.cursor()
                     try:
+                        cursor2 = mydb.cursor(buffered=True)
                         cursor2.execute('update user_info set balance = balance + '+amount+' where uid = '+self.loggedAcc+';')
-                        mydbs.commit()
+                        mydb.commit()
 
                         self.comment2.config(text=str(amount)+' Deposited!', foreground='green')
                     except mysql.connector.errors.DataError:
@@ -282,25 +282,21 @@ class atm:
 
         if amount != '' and self.isFloat(amount):
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-            cursor1 = mydb.cursor()
+            cursor1 = mydb.cursor(buffered=True)
             cursor1.execute('select balance from user_info where uid = '+self.loggedAcc+';')
             amt = float(cursor1.fetchone()[0])
             if self.isFloat2d(amount):
                 if (amt-eval(amount)) > 1000:
                     try:
-                        mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-                        cursor2 = mydbs.cursor()
+                        cursor2 = mydb.cursor(buffered=True)
                         cursor2.execute('update user_info set balance = balance - '+amount+' where uid = '+self.loggedAcc+';')
-                        mydbs.commit()
+                        mydb.commit()
                         
                         self.comment2.config(text=str(amount)+' Withdrawn!', foreground='green')
                     except mysql.connector.errors.DataError:
                         self.comment2.config(text='The entered amount is more than\nthe available balance', foreground='red')
                 else:
                     self.comment2.config(text='The entered amount is more than\nthe available balance', foreground='red')
-
-                    '''self.ok.config(width=17)
-                    self.withdrawAmount.config(width=17)'''
             else:
                 self.comment2.config(text='Only positive amounts with two\ndecimal places are allowed', foreground='red')
         else:
@@ -310,14 +306,14 @@ class atm:
         amount = self.loanAmount.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select balance from user_info where uid = '+self.loggedAcc+';')
         try:
             balance = float(cursor1.fetchone()[0])
         except:
             balance = cursor1.fetchone()
 
-        cursor2 = mydb.cursor()
+        cursor2 = mydb.cursor(buffered=True)
         cursor2.execute('select loans from user_info where uid = '+self.loggedAcc+';')
         loans = cursor2.fetchone()[0]
 
@@ -325,7 +321,7 @@ class atm:
             if self.isFloat2d(amount):
                 if not loans:
                     if balance > 10000:
-                        cursor2 = mydb.cursor()
+                        cursor2 = mydb.cursor(buffered=True)
                         cursor2.execute('update user_info set loans = '+amount+', loan_date = \''+str(datetime.date.today())+'\', balance = balance + '+amount+', monthly_interest = '+str(float(amount)*0.005)+' where uid = '+self.loggedAcc+';')
                         mydb.commit()
 
@@ -346,7 +342,7 @@ class atm:
             amount = self.loanAmount.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select loans from user_info where uid = '+self.loggedAcc+';')
         try:
             loans = float(cursor1.fetchone()[0])
@@ -357,14 +353,14 @@ class atm:
             if self.isFloat2d(amount):
                 if loans:
                     if amount < loans:
-                        cursor2 = mydb.cursor()
+                        cursor2 = mydb.cursor(buffered=True)
                         cursor2.execute('update user_info set loans = loans - '+str(amount)+' where uid = '+self.loggedAcc+';')
                         mydb.commit()
 
                         self.showBalance.config(text="%.2f" %(float(loans-amount)))
                         self.comment2.config(text=str(amount)+' repayed!', foreground='green')
                     elif amount == loans:
-                        cursor2 = mydb.cursor()
+                        cursor2 = mydb.cursor(buffered=True)
                         cursor2.execute('update user_info set loans = null, loan_date = null, monthly_interest = null where uid = '+self.loggedAcc+';')
                         mydb.commit()
 
@@ -385,19 +381,18 @@ class atm:
         newpincheck = self.newPinCheck.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select pin from user_info where uid = '+self.loggedAcc+';')
         oldpin = str(cursor1.fetchone()[0])
-        mydbs = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor2 = mydbs.cursor()
         
         if oldpin == currentpin:
             if newpin != '':
                 if currentpin != newpin and newpin.isdigit():
                     if len(newpin) == 4:
                         if newpin == newpincheck:
+                            cursor2 = mydb.cursor(buffered=True)
                             cursor2.execute('update user_info set pin = '+newpin+' where uid = '+self.loggedAcc+' ;')
-                            mydbs.commit()
+                            mydb.commit()
                             self.comment4.config(text='Account pin changed', foreground='green')
                         else:
                             self.comment4.config(text='New pin does not match')
@@ -417,19 +412,19 @@ class atm:
         pinConfirm = self.newPinCheck.get()
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor1 = mydb.cursor()
+        cursor1 = mydb.cursor(buffered=True)
         cursor1.execute('select name from user_info;')
         nameList = cursor1.fetchall()
 
-        cursor2 = mydb.cursor()
+        cursor2 = mydb.cursor(buffered=True)
         cursor2.execute('select name from user_requests;')
         pendingName = cursor2.fetchall()
 
-        cursor3 = mydb.cursor()
+        cursor3 = mydb.cursor(buffered=True)
         cursor3.execute('select uid from user_info;')
         existingUid = cursor3.fetchall()
 
-        cursor4 = mydb.cursor()
+        cursor4 = mydb.cursor(buffered=True)
         cursor4.execute('select uid from user_requests;')
         pendingUid = cursor4.fetchall()
 
@@ -443,7 +438,7 @@ class atm:
                                     if pin.isdigit() and pinConfirm.isdigit():
                                         if len(pin) == 4 and len(pinConfirm) == 4:
                                             if pin == pinConfirm:
-                                                cursor5 = mydb.cursor()
+                                                cursor5 = mydb.cursor(buffered=True)
                                                 cursor5.execute('insert into user_info (name,uid,pin,balance) values(\''+name+'\','+uid+','+pin+',1000);')
                                                 mydb.commit()
 
@@ -475,7 +470,7 @@ class atm:
             self.userList.delete(self.userList.curselection())
 
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-            cursor = mydb.cursor()
+            cursor = mydb.cursor(buffered=True)
             cursor.execute('delete from user_info where name = \''+toDel+'\';')
             mydb.commit()
 
@@ -488,14 +483,14 @@ class atm:
             self.userList.delete(self.userList.curselection())
 
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-            cursor1 = mydb.cursor()
+            cursor1 = mydb.cursor(buffered=True)
             cursor1.execute('select * from user_requests where name = \''+newUser+'\';')
             details = cursor1.fetchone()
 
-            cursor2 = mydb.cursor()
+            cursor2 = mydb.cursor(buffered=True)
             cursor2.execute('insert into user_info (name,uid,pin,balance) values(\''+details[0]+'\','+str(details[1])+','+str(details[2])+',1000);')
 
-            cursor3 = mydb.cursor()
+            cursor3 = mydb.cursor(buffered=True)
             cursor3.execute('delete from user_requests where name = \''+newUser+'\';')
             mydb.commit()
 
@@ -508,7 +503,7 @@ class atm:
             self.userList.delete(self.userList.curselection())
 
             mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-            cursor1 = mydb.cursor()
+            cursor1 = mydb.cursor(buffered=True)
             cursor1.execute('delete from user_requests where name = \''+rejUser+'\';')
             mydb.commit()
 
@@ -643,7 +638,7 @@ class atm:
             pass
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select balance from user_info where uid = '+self.loggedAcc+';')
         self.amt = cursor.fetchone()[0]
 
@@ -763,7 +758,7 @@ class atm:
             pass
         
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select loans from user_info where uid = '+self.loggedAcc+';')
         loan = cursor.fetchone()[0]
 
@@ -827,7 +822,7 @@ class atm:
             pass
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select loans from user_info where uid = '+self.loggedAcc+';')
         loan = cursor.fetchone()[0]
 
@@ -934,7 +929,7 @@ class atm:
             pass
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select name from user_requests;')
         pending = cursor.fetchone()
 
@@ -1017,7 +1012,7 @@ class atm:
             pass
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
-        cursor = mydb.cursor()
+        cursor = mydb.cursor(buffered=True)
         cursor.execute('select name from user_info;')
         uName = cursor.fetchone()
 
