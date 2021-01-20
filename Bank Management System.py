@@ -568,14 +568,14 @@ class atm:
         self.comment1 = ttk.Label(self.mainFrame, style='TLabel', text='Enter Account Number:', anchor=E)
         self.comment1.grid(row=1, column=1, sticky=W+E+N+S)
         
-        self.name = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.font, width=13)
+        self.name = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, width=13)
         self.name.grid(row=1, column=2, padx=5, pady=5)
         self.name.focus_set()
         
         self.comment2 = ttk.Label(self.mainFrame, style='TLabel', text='Enter Account Pin:', anchor=E)
         self.comment2.grid(row=2, column=1, sticky=W+E+N+S)
         
-        self.pin = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.font, show='*', width=13)
+        self.pin = ttk.Entry(self.mainFrame, justify=LEFT, style='TEntry', font=self.font, show='*', width=13)
         self.pin.grid(row=2, column=2, padx=5, pady=5)
 
         self.comment3 = ttk.Label(self.mainFrame, justify=CENTER, style='B.TLabel', text='', foreground='red', anchor=CENTER)
