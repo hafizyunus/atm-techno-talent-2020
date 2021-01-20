@@ -2,7 +2,6 @@
 
 #General alignment issues
 #Proof read
-#Entry widget text alignments made common
 #dont allow admin into homepage
 
 from tkinter import ttk, BOTH, Menu, RIGHT, CENTER, LEFT, W, E, N, S, TclError, Listbox, END
