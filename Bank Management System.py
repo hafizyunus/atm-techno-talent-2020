@@ -50,7 +50,7 @@ class atm:
 
         mydb = mysql.connector.connect(host=self.host, user=self.user, passwd=self.passwd, database=self.database)
         cursor = mydb.cursor(buffered=True)
-        cursor.execute('select pin, uid from user_info where name = \'admin\';')
+        cursor.execute('select uid, pin from user_info where name = \'admin\';')
         self.adminUser, self.adminPass = cursor.fetchone()
         self.Admin = False
 
