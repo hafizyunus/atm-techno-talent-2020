@@ -8,7 +8,7 @@ import re
 
 
 class atm:
-    
+
     def __init__(self,master):
 
         master.title('ATM Machine')
@@ -48,10 +48,10 @@ class atm:
         self.name = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.font, width=13)
         self.name.grid(row=1, column=2, padx=5, pady=5)
         self.name.focus_set()
-        
+
         self.comment2 = ttk.Label(self.mainFrame, justify=RIGHT, style='TLabel', text='Account Pin:')
         self.comment2.grid(row=2, column=1, sticky=W+E+N+S)
-        
+
         self.pin = ttk.Entry(self.mainFrame, justify=CENTER, style='TEntry', font=self.font, show='*', width=13)
         self.pin.grid(row=2, column=2, padx=5, pady=5)
 
